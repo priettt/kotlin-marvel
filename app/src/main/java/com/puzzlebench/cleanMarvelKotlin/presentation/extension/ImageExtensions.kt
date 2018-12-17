@@ -8,6 +8,10 @@ fun ImageView.getImageByUrlCenterCrop(url: String) {
 }
 
 fun ImageView.getImageByUrl(url: String?) {
-    if (url != null) Picasso.get().load(url).into(this)
+    if (url != null) {
+        Picasso.get()
+                .load(url)
+                .into(this)
+    }
 }
 

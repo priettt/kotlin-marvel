@@ -12,7 +12,7 @@ class CharactersAdapterViewHolder(view: View, val listener: CharacterListener) :
 
     fun bind(item: Character) = with(itemView) {
         tv_item.text = item.name
-        val string = item.thumbnail.path + "." + item.thumbnail.extension
+        val string = "${item.thumbnail.path}.${item.thumbnail.extension}"
         image_thumbnail.getImageByUrlCenterCrop(string)
         setOnClickListener { listener(item) }
     }
