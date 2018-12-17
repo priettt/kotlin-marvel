@@ -2,40 +2,40 @@ package com.puzzlebench.cleanMarvelKotlin.presentation.mvp
 
 import com.puzzlebench.cleanMarvelKotlin.data.service.CharacterServicesImpl
 import com.puzzlebench.cleanMarvelKotlin.domain.model.Character
+import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterDetailServiceUseCase
 import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterServiceUseCase
 import com.puzzlebench.cleanMarvelKotlin.mocks.factory.CharactersFactory
+import com.puzzlebench.cleanMarvelKotlin.presentation.MainActivity
 import io.reactivex.Observable
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
+import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.MockitoAnnotations
 
-//TODO fix on second iteration
-// error: However, there was exactly 1 interaction with this mock:
 class CharacterPresenterTest {
-
-
     private var view = mock(CharacterView::class.java)
     private var characterServiceImp = mock(CharacterServicesImpl::class.java)
+    @Mock
+    private lateinit var activity: MainActivity
     private lateinit var characterPresenter: CharacterPresenter
     private lateinit var getCharacterServiceUseCase: GetCharacterServiceUseCase
-
+    private lateinit var getCharacterDetailServiceUseCase: GetCharacterDetailServiceUseCase
 
     @Before
     fun setUp() {
-
+        MockitoAnnotations.initMocks(this)
         RxAndroidPlugins.setInitMainThreadSchedulerHandler { scheduler -> Schedulers.trampoline() }
-
         getCharacterServiceUseCase = GetCharacterServiceUseCase(characterServiceImp)
+        getCharacterDetailServiceUseCase = GetCharacterDetailServiceUseCase(characterServiceImp)
         val subscriptions = mock(CompositeDisposable::class.java)
-        characterPresenter = CharacterPresenter(view, getCharacterServiceUseCase, subscriptions)
-
-
+        characterPresenter = CharacterPresenter(view, getCharacterServiceUseCase, getCharacterDetailServiceUseCase, subscriptions)
+        Mockito.`when`(view.activity).thenReturn(activity)
     }
 
     @Test
@@ -58,8 +58,6 @@ class CharacterPresenterTest {
         verify(characterServiceImp).getCharacters()
         verify(view).hideLoading()
         verify(view).showCharacters(itemsCharacters)
-
-
     }
 
     @Test
@@ -70,9 +68,5 @@ class CharacterPresenterTest {
         characterPresenter.init()
         verify(view).init()
         verify(characterServiceImp).getCharacters()
-
-
     }
-
-
 }

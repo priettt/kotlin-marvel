@@ -1,11 +1,33 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name= "Text.Dialog.Title" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textSize">@dimen/title_text_size</item>
+        <item name="android:textColor">@color/dialog_title_color</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginTop">@dimen/padding_small_8</item>
+
+    </style>
+
+    <style name= "Text.Dialog.Body" parent="Text.Dialog.Title">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">@dimen/body_text_size</item>
+        <item name="android:textColor">@color/dialog_body_color</item>
+    </style>
+
+    <style name= "Text.Dialog.Bullet" parent="Text.Dialog.Title">
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textSize">@dimen/bullet_text_size</item>
+    </style>
+
+    <style name= "Text.Dialog.Link" parent="Text.Dialog.Body">
+        <!--TODO: make links instead of text-->
+    </style>
 </resources>
