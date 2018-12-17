@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.ref.WeakReference
 
 const val SPAN_COUNT = 1
+const val DIALOG_TAG = "Character Dialog"
 
 class CharacterView(val activity: MainActivity) {
     private val activityRef = WeakReference(activity)
@@ -58,7 +59,7 @@ class CharacterView(val activity: MainActivity) {
 
     fun showDialog(name: String, description: String, imageUrl: String, available: String, url_comic: String, url_wiki: String) {
         val dialog = CharacterDialogFragment.newInstance(name, description, imageUrl, available, url_comic, url_wiki)
-        dialog.show(activity.supportFragmentManager, "CharacterDialog")
+        dialog.show(activity.supportFragmentManager, DIALOG_TAG)
     }
 
 }

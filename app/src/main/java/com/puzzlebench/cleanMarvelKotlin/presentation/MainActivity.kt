@@ -14,7 +14,12 @@ class MainActivity : BaseRxActivity() {
 
     val getCharacterServiceUseCase = GetCharacterServiceUseCase(CharacterServicesImpl())
     val getCharacterDetailServiceUseCase = GetCharacterDetailServiceUseCase(CharacterServicesImpl())
-    val presenter = CharacterPresenter(CharacterView(this), getCharacterServiceUseCase, getCharacterDetailServiceUseCase, subscriptions)
+    val presenter = CharacterPresenter(
+            CharacterView(this),
+            getCharacterServiceUseCase,
+            getCharacterDetailServiceUseCase,
+            subscriptions
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

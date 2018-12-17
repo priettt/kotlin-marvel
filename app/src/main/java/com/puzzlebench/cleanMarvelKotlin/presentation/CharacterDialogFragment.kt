@@ -58,9 +58,7 @@ class CharacterDialogFragment() : DialogFragment() {
         linkWiki.text = arguments?.getString(WIKI_LINK_TAG)
 
         linkComics.movementMethod = LinkMovementMethod.getInstance()
-        val imagePath: String? = arguments?.getString(IMAGE_TAG)
-        if (imagePath != null)
-            Picasso.get().load(imagePath).into(image)
+        image.getImageByUrl(arguments?.getString(IMAGE_TAG))
 
 
         val builder = AlertDialog.Builder(context!!)
