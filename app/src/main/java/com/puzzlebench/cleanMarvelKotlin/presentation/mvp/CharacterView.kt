@@ -27,18 +27,18 @@ class CharacterView(val activity: MainActivity) {
     fun init() {
         val activity = activityRef.get()
         if (activity != null) {
+            showLoading()
             activity.recycleView.layoutManager = GridLayoutManager(activity, SPAN_COUNT)
             activity.recycleView.adapter = adapter
-            showLoading()
-            activity.fab_refresh.setOnClickListener{
+            activity.fab_refresh.setOnClickListener {
                 RxBus.post(OnRefreshPressedBusObserver.OnRefreshPressed())
             }
         }
     }
 
-    fun reset(){
+    fun reset() {
         activity.recycleView.adapter = null
-        init()
+        showLoading()
     }
 
     fun showToastNoItemToShow() {
@@ -66,6 +66,7 @@ class CharacterView(val activity: MainActivity) {
     }
 
     fun showCharacters(characters: List<Character>) {
+        activity.recycleView.adapter = adapter
         adapter.data = characters
     }
 
@@ -77,6 +78,30 @@ class CharacterView(val activity: MainActivity) {
     fun showDialog(name: String, description: String, imageUrl: String, available: String, url_comic: String, url_wiki: String) {
         val dialog = CharacterDialogFragment.newInstance(name, description, imageUrl, available, url_comic, url_wiki)
         dialog.show(activity.supportFragmentManager, DIALOG_TAG)
+    }
+
+    fun showToastErrorSavingToDatabase() {
+        val activity = activityRef.get()
+        if (activity != null) {
+            val message = activity.baseContext.resources.getString(R.string.error_database)
+            activity.applicationContext.showToast(message)
+        }
+    }
+
+    fun showToastLoadedFromDatabase() {
+        val activity = activityRef.get()
+        if (activity != null) {
+            val message = activity.baseContext.resources.getString(R.string.loaded_from_database)
+            activity.applicationContext.showToast(message)
+        }
+    }
+
+    fun showToastLoadedFromServer() {
+        val activity = activityRef.get()
+        if (activity != null) {
+            val message = activity.baseContext.resources.getString(R.string.loaded_from_server)
+            activity.applicationContext.showToast(message)
+        }
     }
 
 }

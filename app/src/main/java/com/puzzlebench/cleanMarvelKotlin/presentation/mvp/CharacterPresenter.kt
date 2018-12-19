@@ -1,10 +1,10 @@
 package com.puzzlebench.cleanMarvelKotlin.presentation.mvp
 
+import com.puzzlebench.cleanMarvelKotlin.data.db.entities.CharacterEntity
 import com.puzzlebench.cleanMarvelKotlin.domain.model.Character
-import com.puzzlebench.cleanMarvelKotlin.domain.usecase.AddToDatabaseUseCase
+import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterDatabaseUseCase
 import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterDetailServiceUseCase
 import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterServiceUseCase
-import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetFromDatabaseUseCase
 import com.puzzlebench.cleanMarvelKotlin.presentation.base.Presenter
 import com.puzzlebench.cleanMarvelKotlin.utils.bus.RxBus
 import com.puzzlebench.cleanMarvelKotlin.utils.bus.observer.OnCharacterPressedBusObserver
@@ -21,72 +21,26 @@ const val COMIC_URL_TAG = "comiclink"
 open class CharacterPresenter(view: CharacterView,
                               private val getCharacterServiceUseCase: GetCharacterServiceUseCase,
                               private val getCharacterDetailServiceUseCase: GetCharacterDetailServiceUseCase,
-                              private val getFromDatabaseUseCase: GetFromDatabaseUseCase,
-                              private val addToDatabaseUseCase: AddToDatabaseUseCase,
+                              private val getCharacterDatabaseUseCase: GetCharacterDatabaseUseCase,
                               private val subscriptions: CompositeDisposable) : Presenter<CharacterView>(view) {
 
     fun init() {
         view.init()
-        requestGetCharacters()
-        getCharacter()
-        refresh()
+        retrieveFromDatabase()
+        listenToRefresh()
+        listenToDetails()
     }
 
-    private fun refresh() {
+    private fun listenToRefresh() {
         RxBus.subscribe(view.activity, object : OnRefreshPressedBusObserver() {
             override fun onEvent(value: OnRefreshPressedBusObserver.OnRefreshPressed) {
                 view.reset()
-                val subscription = getCharacterServiceUseCase.invoke()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ characters ->
-                            if (characters.isEmpty()) {
-                                view.showToastNoItemToShow()
-                            } else {
-                                addToDatabase(characters)
-                                view.showCharacters(characters)
-                            }
-                            view.hideLoading()
-                        }, { e ->
-                            view.hideLoading()
-                            view.showToastNetworkError(e.message.toString())
-                        })
-                subscriptions.add(subscription)
+                retrieveFromMarvel(true)
             }
         })
     }
 
-    private fun addToDatabase(list: List<Character>) {
-        val subscription = addToDatabaseUseCase.invoke(list)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { success ->
-                    if (success) {
-                        view.showToastSavedToDatabase()
-                    }
-                }
-        subscriptions.add(subscription)
-    }
-
-    private fun requestGetCharacters() {
-        val subscription = getCharacterServiceUseCase.invoke()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ characters ->
-                    if (characters.isEmpty()) {
-                        view.showToastNoItemToShow()
-                    } else {
-                        view.showCharacters(characters)
-                    }
-                    view.hideLoading()
-                }, { e ->
-                    view.hideLoading()
-                    view.showToastNetworkError(e.message.toString())
-                })
-        subscriptions.add(subscription)
-    }
-
-    private fun getCharacter() {
+    private fun listenToDetails() {
         RxBus.subscribe(view.activity, object : OnCharacterPressedBusObserver() {
             override fun onEvent(value: OnCharacterPressedBusObserver.OnCharacterPressed) {
                 val subscription = getCharacterDetailServiceUseCase.invoke(value.id)
@@ -104,4 +58,47 @@ open class CharacterPresenter(view: CharacterView,
         })
     }
 
+    private fun retrieveFromDatabase() {
+        subscriptions.add(getCharacterDatabaseUseCase.invoke()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { characters ->
+                    if (!characters.isEmpty()) {
+                        view.showCharacters(characters)
+                        view.showToastLoadedFromDatabase()
+                    } else retrieveFromMarvel()
+                }
+        )
+    }
+
+    private fun retrieveFromMarvel(toDatabase:Boolean = false) {
+        subscriptions.add(getCharacterServiceUseCase.invoke()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ characters ->
+                    if (characters.isEmpty()) {
+                        view.showToastNoItemToShow()
+                    } else {
+                        view.showCharacters(characters)
+                        view.showToastLoadedFromServer()
+                        if (toDatabase) addFromServerToDatabase(characters)
+                    }
+                    view.hideLoading()
+                }, { e ->
+                    view.hideLoading()
+                    view.showToastNetworkError(e.message.toString())
+                })
+        )
+    }
+
+    private fun addFromServerToDatabase(characters: List<Character>){
+        subscriptions.add(getCharacterDatabaseUseCase.invoke(characters)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { success ->
+                    if (success) view.showToastSavedToDatabase()
+                    else view.showToastErrorSavingToDatabase()
+                }
+        )
+    }
 }

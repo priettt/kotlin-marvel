@@ -8,5 +8,8 @@
     <string name="more_details_label">More details</string>
     <string name="see_the_comics_label">See the comics!</string>
     <string name="success_database">Characters added to the database</string>
+    <string name="error_database">An error has occurred while trying to save to the database</string>
+    <string name="loaded_from_database">Loaded from database</string>
+    <string name="loaded_from_server">Loaded from server</string>
 
 </resources>
