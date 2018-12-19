@@ -7,5 +7,6 @@
     <string name="appearances_label">Number of appearances in comics</string>
     <string name="more_details_label">More details</string>
     <string name="see_the_comics_label">See the comics!</string>
+    <string name="success_database">Characters added to the database</string>
 
 </resources>
