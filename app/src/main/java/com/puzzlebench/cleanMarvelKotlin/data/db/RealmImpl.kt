@@ -21,7 +21,11 @@ class RealmImpl(private val mapper: CharacterMapperDatabase = CharacterMapperDat
                     realmInstance.insertOrUpdate(mapper.transformToResponse(item))
                 }
             }
-            subscriber.onNext(true)
+            if (realmInstance.where<CharacterEntity>().findAll().size == list.size)
+                subscriber.onNext(true)
+            else
+                subscriber.onNext(false)
+
             subscriber.onComplete()
             realmInstance.close()
         }
