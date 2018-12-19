@@ -10,6 +10,7 @@ import com.puzzlebench.cleanMarvelKotlin.presentation.adapter.CharacterAdapter
 import com.puzzlebench.cleanMarvelKotlin.presentation.extension.showToast
 import com.puzzlebench.cleanMarvelKotlin.utils.bus.RxBus
 import com.puzzlebench.cleanMarvelKotlin.utils.bus.observer.OnCharacterPressedBusObserver
+import com.puzzlebench.cleanMarvelKotlin.utils.bus.observer.OnRefreshPressedBusObserver
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.ref.WeakReference
 
@@ -29,13 +30,29 @@ class CharacterView(val activity: MainActivity) {
             activity.recycleView.layoutManager = GridLayoutManager(activity, SPAN_COUNT)
             activity.recycleView.adapter = adapter
             showLoading()
+            activity.fab_refresh.setOnClickListener{
+                RxBus.post(OnRefreshPressedBusObserver.OnRefreshPressed())
+            }
         }
+    }
+
+    fun reset(){
+        activity.recycleView.adapter = null
+        init()
     }
 
     fun showToastNoItemToShow() {
         val activity = activityRef.get()
         if (activity != null) {
             val message = activity.baseContext.resources.getString(R.string.message_no_items_to_show)
+            activity.applicationContext.showToast(message)
+        }
+    }
+
+    fun showToastSavedToDatabase() {
+        val activity = activityRef.get()
+        if (activity != null) {
+            val message = activity.baseContext.resources.getString(R.string.success_database)
             activity.applicationContext.showToast(message)
         }
     }
