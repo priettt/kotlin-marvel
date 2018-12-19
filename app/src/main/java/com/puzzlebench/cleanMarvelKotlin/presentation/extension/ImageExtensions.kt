@@ -4,12 +4,16 @@ import android.widget.ImageView
 import com.squareup.picasso.Picasso
 
 fun ImageView.getImageByUrlCenterCrop(url: String) {
-    Picasso.get().load(url).fit().centerCrop().into(this)
+    Picasso.with(context)
+            .load(url)
+            .fit()
+            .centerCrop()
+            .into(this)
 }
 
 fun ImageView.getImageByUrl(url: String?) {
     if (url != null) {
-        Picasso.get()
+        Picasso.with(context)
                 .load(url)
                 .into(this)
     }
