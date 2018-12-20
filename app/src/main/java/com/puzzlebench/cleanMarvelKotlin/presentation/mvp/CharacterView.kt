@@ -8,10 +8,10 @@ import com.puzzlebench.cleanMarvelKotlin.presentation.CharacterDialogFragment
 import com.puzzlebench.cleanMarvelKotlin.presentation.MainActivity
 import com.puzzlebench.cleanMarvelKotlin.presentation.adapter.CharacterAdapter
 import com.puzzlebench.cleanMarvelKotlin.presentation.extension.showToast
-import com.puzzlebench.cleanMarvelKotlin.utils.bus.RxBus
-import com.puzzlebench.cleanMarvelKotlin.utils.bus.observer.OnCharacterPressedBusObserver
-import com.puzzlebench.cleanMarvelKotlin.utils.bus.observer.OnRefreshPressedBusObserver
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.progress_overlay.progress_overlay
 import java.lang.ref.WeakReference
 
 const val SPAN_COUNT = 1
@@ -19,26 +19,44 @@ const val DIALOG_TAG = "Character Dialog"
 
 class CharacterView(val activity: MainActivity) {
     private val activityRef = WeakReference(activity)
+    val characterPublisher = PublishSubject.create<Int>()
 
     private var adapter = CharacterAdapter { character ->
-        RxBus.post(OnCharacterPressedBusObserver.OnCharacterPressed(character.id))
+        run {
+            showLoadingSpinner()
+            characterPublisher.onNext(character.id)
+        }
+    }
+
+    private fun showLoadingSpinner() {
+        activity.progress_overlay.visibility = View.VISIBLE
+    }
+
+    fun hideLoadingSpinner() {
+        activity.progress_overlay.visibility = View.GONE
     }
 
     fun init() {
         val activity = activityRef.get()
         if (activity != null) {
-            showLoading()
+            showLoadingSpinner()
             activity.recycleView.layoutManager = GridLayoutManager(activity, SPAN_COUNT)
             activity.recycleView.adapter = adapter
+            refreshPressedObservable()
+        }
+    }
+
+    fun refreshPressedObservable(): Observable<Boolean> {
+        return Observable.create { emitter ->
             activity.fab_refresh.setOnClickListener {
-                RxBus.post(OnRefreshPressedBusObserver.OnRefreshPressed())
+                emitter.onNext(true)
             }
         }
     }
 
     fun reset() {
         activity.recycleView.adapter = null
-        showLoading()
+        showLoadingSpinner()
     }
 
     fun showToastNoItemToShow() {
@@ -61,23 +79,16 @@ class CharacterView(val activity: MainActivity) {
         activityRef.get()!!.applicationContext.showToast(error)
     }
 
-    fun hideLoading() {
-        activityRef.get()!!.progressBar.visibility = View.GONE
-    }
-
     fun showCharacters(characters: List<Character>) {
         activity.recycleView.adapter = adapter
         adapter.data = characters
-    }
-
-    private fun showLoading() {
-        activityRef.get()!!.progressBar.visibility = View.VISIBLE
-
+        hideLoadingSpinner()
     }
 
     fun showDialog(name: String, description: String, imageUrl: String, available: String, url_comic: String, url_wiki: String) {
         val dialog = CharacterDialogFragment.newInstance(name, description, imageUrl, available, url_comic, url_wiki)
         dialog.show(activity.supportFragmentManager, DIALOG_TAG)
+        hideLoadingSpinner()
     }
 
     fun showToastErrorSavingToDatabase() {

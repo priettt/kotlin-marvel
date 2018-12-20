@@ -32,30 +32,37 @@ open class CharacterPresenter(view: CharacterView,
     }
 
     private fun listenToRefresh() {
-        RxBus.subscribe(view.activity, object : OnRefreshPressedBusObserver() {
-            override fun onEvent(value: OnRefreshPressedBusObserver.OnRefreshPressed) {
-                view.reset()
-                retrieveFromMarvel(true)
-            }
-        })
+        val subscriptionRefresh = view.refreshPressedObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    view.reset()
+                    retrieveFromMarvel(true)
+                }
+        subscriptions.add(subscriptionRefresh)
     }
 
     private fun listenToDetails() {
-        RxBus.subscribe(view.activity, object : OnCharacterPressedBusObserver() {
-            override fun onEvent(value: OnCharacterPressedBusObserver.OnCharacterPressed) {
-                val subscription = getCharacterDetailServiceUseCase.invoke(value.id)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ character ->
-                            view.showDialog(character.name, character.description,
-                                    "${character.thumbnail.path}.${character.thumbnail.extension}",
-                                    character.comics.available.toString(), character.getComicsUrl(), character.getDetailsUrl())
-                        }, { e ->
-                            view.showToastNetworkError(e.message.toString())
-                        })
-                subscriptions.add(subscription)
-            }
-        })
+        val subscriptionDetails = view.characterPublisher.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { id ->
+                    retrieveCharacterFromMarvel(id)
+                }
+        subscriptions.add(subscriptionDetails)
+    }
+
+    private fun retrieveCharacterFromMarvel(id: Int) {
+        val subscription = getCharacterDetailServiceUseCase.invoke(id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ character ->
+                    view.showDialog(character.name, character.description,
+                            "${character.thumbnail.path}.${character.thumbnail.extension}",
+                            character.comics.available.toString(), character.getComicsUrl(), character.getDetailsUrl())
+                }, { e ->
+                    view.showToastNetworkError(e.message.toString())
+                })
+        subscriptions.add(subscription)
     }
 
     private fun retrieveFromDatabase() {
@@ -71,7 +78,7 @@ open class CharacterPresenter(view: CharacterView,
         )
     }
 
-    private fun retrieveFromMarvel(toDatabase:Boolean = false) {
+    private fun retrieveFromMarvel(toDatabase: Boolean = false) {
         subscriptions.add(getCharacterServiceUseCase.invoke()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -83,15 +90,15 @@ open class CharacterPresenter(view: CharacterView,
                         view.showToastLoadedFromServer()
                         if (toDatabase) addFromServerToDatabase(characters)
                     }
-                    view.hideLoading()
+                    view.hideLoadingSpinner()
                 }, { e ->
-                    view.hideLoading()
+                    view.hideLoadingSpinner()
                     view.showToastNetworkError(e.message.toString())
                 })
         )
     }
 
-    private fun addFromServerToDatabase(characters: List<Character>){
+    private fun addFromServerToDatabase(characters: List<Character>) {
         subscriptions.add(getCharacterDatabaseUseCase.invoke(characters)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
