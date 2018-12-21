@@ -12,7 +12,6 @@ import junit.framework.Assert
 import org.junit.Before
 import org.junit.Test
 
-
 const val ID = 1
 const val NAME = "sport"
 const val URL_TYPE = "wiki"
@@ -28,12 +27,10 @@ class CharacterMapperServiceTest {
     @Before
     fun setUp() {
         mapper = CharacterMapperService()
-
     }
 
     @Test
     fun transform() {
-
         val mockThumbnailResponse = ThumbnailResponse(PATH, EXTENSION)
         val mockUrlResponse = listOf(UrlResponse(URL_TYPE, URL_LINK))
         val mockComicsResponse = ComicsResponse(COMICS_AVAILABLE)
@@ -50,7 +47,6 @@ class CharacterMapperServiceTest {
         val mockCharacter = Character(ID, NAME, DESCRIPTION, mockThumbnail, mockComics, mockUrl)
         val result = mapper.transformToResponse(mockCharacter)
         assertBufferooDataEquality(result, mockCharacter)
-
     }
 
     private fun assertBufferooDataEquality(characterResponse: CharacterResponse,
