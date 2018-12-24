@@ -11,5 +11,6 @@
     <string name="error_database">An error has occurred while trying to save to the database</string>
     <string name="loaded_from_database">Loaded from database</string>
     <string name="loaded_from_server">Loaded from server</string>
+    <string name="landing_image">Landing image</string>
 
 </resources>

@@ -1,14 +1,10 @@
 package com.puzzlebench.cleanMarvelKotlin.presentation.mvp
 
-import com.puzzlebench.cleanMarvelKotlin.data.db.entities.CharacterEntity
 import com.puzzlebench.cleanMarvelKotlin.domain.model.Character
 import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterDatabaseUseCase
 import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterDetailServiceUseCase
 import com.puzzlebench.cleanMarvelKotlin.domain.usecase.GetCharacterServiceUseCase
 import com.puzzlebench.cleanMarvelKotlin.presentation.base.Presenter
-import com.puzzlebench.cleanMarvelKotlin.utils.bus.RxBus
-import com.puzzlebench.cleanMarvelKotlin.utils.bus.observer.OnCharacterPressedBusObserver
-import com.puzzlebench.cleanMarvelKotlin.utils.bus.observer.OnRefreshPressedBusObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
