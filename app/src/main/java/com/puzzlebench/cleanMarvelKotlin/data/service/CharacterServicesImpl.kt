@@ -8,7 +8,6 @@ import io.reactivex.Observable
 
 class CharacterServicesImpl(private val api: MarvelRequestGenerator = MarvelRequestGenerator(), private val mapper: CharacterMapperService = CharacterMapperService()) {
 
-
     fun getCharacters(): Observable<List<Character>> {
         return Observable.create { subscriber ->
             val callResponse = api.createService(MarvelApi::class.java).getCharacter()

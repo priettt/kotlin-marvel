@@ -34,7 +34,11 @@ class RealmImpl(private val mapper: CharacterMapperDatabase = CharacterMapperDat
     fun getCharacters(): Observable<List<Character>> {
         return Observable.create { subscriber ->
             val realmInstance = Realm.getDefaultInstance()
-            subscriber.onNext(mapper.transform(realmInstance.where<CharacterEntity>().findAll()))
+            subscriber.onNext(
+                    mapper.transform(
+                            realmInstance.where<CharacterEntity>().findAll()
+                    )
+            )
             subscriber.onComplete()
             realmInstance.close()
         }

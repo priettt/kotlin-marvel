@@ -13,9 +13,7 @@ import com.puzzlebench.cleanMarvelKotlin.R.string.accept
 import com.puzzlebench.cleanMarvelKotlin.presentation.extension.getImageByUrl
 import com.squareup.picasso.Picasso
 
-
 class CharacterDialogFragment() : DialogFragment() {
-
 
     companion object {
         private val NAME_TAG = "NAME"
@@ -38,12 +36,10 @@ class CharacterDialogFragment() : DialogFragment() {
             dialog.arguments = args
             return dialog
         }
-
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = activity!!.layoutInflater.inflate(R.layout.character_pressed_dialog, null)
-
         val textName = view.findViewById<View>(R.id.character_name) as TextView
         val description = view.findViewById<View>(R.id.character_description) as TextView
         val image = view.findViewById<View>(R.id.dialog_character_image) as ImageView
@@ -59,7 +55,6 @@ class CharacterDialogFragment() : DialogFragment() {
 
         linkComics.movementMethod = LinkMovementMethod.getInstance()
         image.getImageByUrl(arguments?.getString(IMAGE_TAG))
-
 
         val builder = AlertDialog.Builder(context!!)
                 .setView(view)
